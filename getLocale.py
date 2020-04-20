@@ -14,6 +14,9 @@ import os
 
 apk = '' #insert API Key
 
+#def limit check for simplicity set a hard limit check when batch process, it will cancel if length is greater than limit with out initilazing call to REST API 
+#alternative is to iterate and check if index is greater than limit
+limit = 101
 
 #initialize path
 def set_path():
@@ -35,20 +38,24 @@ def init_client(apk):
     client = GeocodioClient(apk)
     return client
 
-def getLoc(locales):
-    data = client.geocode(locales)
-    return data
-
 def parseJson(data):
     data = pd.DataFrame((flatten(record, '.') for record in data))
     return data
+
+def getLoc(locales):
+    if len(locales) <= limit:
+        data = client.geocode(locales)
+        df=parseJson(data)
+        return data, df
+    else: 
+        print("Are you sure you want to drop money???")
+
+
 
 
 
 path = set_path()
 locales = getList(path)
 client = init_client(apk)
-data = getLoc(locales)
-data = parseJson(data)
-
+data, df = getLoc(locales)
 
